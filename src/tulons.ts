@@ -133,7 +133,7 @@ export class Tulons {
     });
 
     // collect the response body from the multiquery
-    const streams = (await response.json()) as CeramicStreams;
+    const streams = ((await response.json()) || {}) as CeramicStreams;
 
     // extract content from the stream responses
     Object.keys(streams).map((stream) => {
@@ -172,9 +172,13 @@ function findStreams(
   streams: CeramicStreamIds = []
 ): CeramicStreamIds {
   // scan for ceramic:// uris
-  if (typeof content === "string" && content.indexOf("ceramic://") == 0) {
+  if (
+    content &&
+    typeof content === "string" &&
+    content.indexOf("ceramic://") == 0
+  ) {
     streams.push(content);
-  } else if (typeof content == "object") {
+  } else if (content && typeof content == "object") {
     Object.keys(content as CeramicStreams).map((key) => {
       streams = findStreams(content[key], streams);
     });
@@ -191,10 +195,11 @@ async function hydrateWithStreams(
   skipRecursiveHydrate = false
 ): Promise<unknown> {
   // recursive scan to place the content from ceramic:// uris
-  if (typeof content == "object") {
+  if (content && typeof content == "object") {
     await Promise.all(
       Object.keys(content).map(async (key) => {
         if (
+          content[key] &&
           typeof content[key] === "string" &&
           (content[key] as string).indexOf("ceramic://") == 0
         ) {
@@ -203,7 +208,7 @@ async function hydrateWithStreams(
           if (recursive) {
             layerStreams = findStreams(content[key], layerStreams);
           }
-        } else if (typeof content[key] == "object") {
+        } else if (content[key] && typeof content[key] == "object") {
           content[key] = (await hydrateWithStreams.call(
             this,
             content[key],
