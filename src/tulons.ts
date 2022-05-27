@@ -6,7 +6,7 @@ import * as hasher from "hash.js";
 import { base36 } from "multiformats/bases/base36";
 
 // ---- Basic types used by Tulons
-export type CeramicStateContent = { state: { content: string } };
+export type CeramicStateContent = { state: { content: string, next?: {content: string} }};
 export type CeramicGenesisStreams = Record<string, string | false>;
 export type CeramicStreamResponse = {
   content: unknown;
@@ -56,8 +56,10 @@ export class Tulons {
       body: JSON.stringify(data),
     });
 
+    const state = ((await response.json()) as CeramicStateContent).state;
+
     // get the did address from the returned records content
-    const did = ((await response.json()) as CeramicStateContent).state.content;
+    const did = state.next ? state.next.content : state.content;
 
     // returns the did associated with the address on the given network
     return did;

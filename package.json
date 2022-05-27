@@ -1,6 +1,6 @@
 {
   "name": "tulons",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "dist/tulons.js",
   "types": "dist/tulons.d.ts",
   "homepage": "https://github.com/tulons/tulons-ts",
