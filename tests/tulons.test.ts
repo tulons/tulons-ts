@@ -7,23 +7,7 @@ mockFetch.enableMocks();
 
 test("Can get DID from wallet address", async () => {
   const tulons = new Tulons('localhost', 1);
-  
-  // set mock for the streams expected request (request for caip10 link)
-  fetchMock.mockIf(/^localhost\/api\/v0\/streams$/, (req: Request): Promise<MockResponseInit | string> => {
-
-    return Promise.resolve({
-      "body": JSON.stringify({
-        "streamId":"k2t6w...",
-        "state": {
-          "content":"did:3:kjzl6..."
-        }
-      })
-    });
-  });
-  
-  const did = await tulons.getDID("0x0");
-  
-  expect(did).toBe("did:3:kjzl6...");
+  expect(did).toBe("did:pkh:eip155:1:0x0");
 });
 
 test("Can get Genesis Hash from DID", async () => {
