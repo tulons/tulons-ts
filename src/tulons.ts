@@ -37,34 +37,7 @@ export class Tulons {
   }
 
   async getDID(address: string): Promise<string> {
-    // grab did that this address controls (defaults to "on mainnet")
-    const data = {
-      type: 1,
-      genesis: {
-        header: {
-          controllers: [`${address.toLowerCase()}@eip155:${this._network}`],
-          family: `caip10-eip155:${this._network}`,
-        },
-      },
-      opts: { anchor: false, publish: true, sync: 0, pin: true },
-    };
-
-    // pull stream associated with this accounts caip10 link from ceramic node
-    const response = await fetch(`${this._ceramicUrl}/api/v0/streams`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    const state = ((await response.json()) as CeramicStateContent).state;
-
-    // get the did address from the returned records content
-    const did = state.next ? state.next.content : state.content;
-
-    // returns the did associated with the address on the given network
-    return did;
+    return `did:pkh:eip155:${this._network}:${address}`;
   }
 
   getGenesisHash(did: string): string {
