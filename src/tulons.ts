@@ -36,7 +36,7 @@ export class Tulons {
     return address.replace(`@eip155:${this._network}`, "");
   }
 
-  async getDID(address: string): Promise<string> {
+  getDID(address: string): string {
     return `did:pkh:eip155:${this._network}:${address}`;
   }
 
