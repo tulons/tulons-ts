@@ -5,18 +5,21 @@ import mockFetch, { MockResponseInit } from 'jest-fetch-mock'
 
 mockFetch.enableMocks();
 
-test("Can get DID from wallet address", async () => {
+test("Can get DID from wallet address", () => {
   const tulons = new Tulons('localhost', 1);
+
+  const did = tulons.getDID("0x0");
+
   expect(did).toBe("did:pkh:eip155:1:0x0");
 });
 
 test("Can get Genesis Hash from DID", async () => {
   const tulons = new Tulons('localhost', 1);
   
-  const hash = await tulons.getGenesisHash("did:3:kjzl6...");
+  const hash = await tulons.getGenesisHash("did:pkh:eip155:1:0x0");
   
-  // "did:3:kjzl6..." encoded and hashed (intergration test)
-  expect(hash).toBe("k2t6wyfsu4pfy1fbtzq5i47ryj5i8m33sj2o873nwkkjlg3ox0o0m2b4mhcsz5");
+  // "did:3:kjzl6..." encoded and hashed (integration test)
+  expect(hash).toBe("k2t6wyfsu4pg2uolfm8khi17vi56lp9d7679hy2cbbjyqp6ox9ovev8ciwnnxs");
 });
 
 test("Can get Genesis Streams from DID", async () => {
@@ -27,7 +30,7 @@ test("Can get Genesis Streams from DID", async () => {
 
     return Promise.resolve({
       "body": JSON.stringify({
-        "k2t6wyfsu4pfy1fbtzq5i47ryj5i8m33sj2o873nwkkjlg3ox0o0m2b4mhcsz5": {
+        "k2t6wyfsu4pg2uolfm8khi17vi56lp9d7679hy2cbbjyqp6ox9ovev8ciwnnxs": {
           "content":{
             "kz2832...": "ceramic://kz29j...",
             "k3qp34...": "ceramic://kz30x..."
@@ -37,9 +40,9 @@ test("Can get Genesis Streams from DID", async () => {
     });
   });
 
-  const streams = await tulons.getGenesisStreams("k2t6wyfsu4pfy1fbtzq5i47ryj5i8m33sj2o873nwkkjlg3ox0o0m2b4mhcsz5");
+  const streams = await tulons.getGenesisStreams("k2t6wyfsu4pg2uolfm8khi17vi56lp9d7679hy2cbbjyqp6ox9ovev8ciwnnxs");
   
-  // "did:3:kjzl6..." encoded and hashed (intergration test)
+  // "did:3:kjzl6..." encoded and hashed (integration test)
   expect(streams).toStrictEqual({
     "kz2832...": "ceramic://kz29j...",
     "k3qp34...": "ceramic://kz30x..."
