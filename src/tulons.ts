@@ -6,8 +6,9 @@ import * as hasher from "hash.js";
 import { base36 } from "multiformats/bases/base36";
 
 // ---- Basic types used by Tulons
-export type CeramicStateContent = {
-  state: { content: string; next?: { content: string } };
+export type CeramicGenesis = {
+  did: string;
+  streams: CeramicGenesisStreams;
 };
 export type CeramicGenesisStreams = Record<string, string | false>;
 export type CeramicStreamResponse = {
@@ -31,35 +32,18 @@ export class Tulons {
     this._network = `${network}`;
   }
 
-  getCleanAddress(address: string): string {
-    // helper method to clean up any address fields held in the CryptoAccounts data record
-    return address.replace(`@eip155:${this._network}`, "");
-  }
-
-  getDID(address: string): string {
-    return `did:pkh:eip155:${this._network}:${address}`;
-  }
-
-  getGenesisHash(did: string): string {
-    // encode the input genesis with cborg (Concise Binary Object Representation)
-    const inputBytes = encoder.encode({
-      header: { controllers: [did], family: "IDX" },
-    });
-
-    // hash the input_bytes and pad with STREAMID_CODEC and TYPE (as bytes)
-    const pad = Uint8Array.from([206, 1, 0, 1, 113, 18, 32]);
-    const digest = Uint8Array.from(hasher.sha256().update(inputBytes).digest());
-
-    // encode the bytes array with base36 to get the deterministic streamId from the DIDs genesis
-    return base36.encode(new Uint8Array([...pad, ...digest]));
-  }
-
-  async getGenesisStreams(
-    genesis: string,
+  async getGenesis(
+    address: string,
     ids?: CeramicStreamIds
-  ): Promise<CeramicGenesisStreams> {
+  ): Promise<CeramicGenesis> {
     // start empty streams obj
     const streams = {};
+
+    // get the did
+    const did = getDID(address, this._network);
+
+    // get the genesis IDX streams
+    const genesis = getGenesisHash(did);
 
     // get the stream content for the given did according to its genesis streamId
     const content = (await this.getStream(`ceramic://${genesis}`)) as Record<
@@ -79,7 +63,10 @@ export class Tulons {
     });
 
     // returns the indexed streams
-    return streams;
+    return {
+      did,
+      streams,
+    } as CeramicGenesis;
   }
 
   async getStream(streamId: string): Promise<CeramicStream> {
@@ -143,6 +130,24 @@ export class Tulons {
 }
 
 // --- private util methods
+
+function getDID(address: string, network: string): string {
+  return `did:pkh:eip155:${network}:${address.toLowerCase()}`;
+}
+
+function getGenesisHash(did: string): string {
+  // encode the input genesis with cbor (Concise Binary Object Representation)
+  const inputBytes = encoder.encode({
+    header: { controllers: [did], family: "IDX" },
+  });
+
+  // hash the input_bytes and pad with STREAMID_CODEC and TYPE (as bytes)
+  const pad = Uint8Array.from([206, 1, 0, 1, 113, 18, 32]);
+  const digest = Uint8Array.from(hasher.sha256().update(inputBytes).digest());
+
+  // encode the bytes array with base36 to get the deterministic streamId from the DIDs genesis
+  return base36.encode(new Uint8Array([...pad, ...digest]));
+}
 
 function findStreams(
   content: unknown,
