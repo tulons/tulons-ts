@@ -5,24 +5,8 @@ import mockFetch, { MockResponseInit } from 'jest-fetch-mock'
 
 mockFetch.enableMocks();
 
-test("Can get DID from wallet address", () => {
-  const tulons = new Tulons('localhost', 1);
+test("Can get Genesis from wallet address", async () => {
 
-  const did = tulons.getDID("0x0");
-
-  expect(did).toBe("did:pkh:eip155:1:0x0");
-});
-
-test("Can get Genesis Hash from DID", async () => {
-  const tulons = new Tulons('localhost', 1);
-  
-  const hash = await tulons.getGenesisHash("did:pkh:eip155:1:0x0");
-  
-  // "did:3:kjzl6..." encoded and hashed (integration test)
-  expect(hash).toBe("k2t6wyfsu4pg2uolfm8khi17vi56lp9d7679hy2cbbjyqp6ox9ovev8ciwnnxs");
-});
-
-test("Can get Genesis Streams from DID", async () => {
   const tulons = new Tulons('localhost', 1);
   
   // set mock for the streams expected request
@@ -30,6 +14,7 @@ test("Can get Genesis Streams from DID", async () => {
 
     return Promise.resolve({
       "body": JSON.stringify({
+        // genesis idx of 0x0's did-pkh == k2t6wyfsu4pg2uolfm8khi17vi56lp9d7679hy2cbbjyqp6ox9ovev8ciwnnxs
         "k2t6wyfsu4pg2uolfm8khi17vi56lp9d7679hy2cbbjyqp6ox9ovev8ciwnnxs": {
           "content":{
             "kz2832...": "ceramic://kz29j...",
@@ -40,10 +25,12 @@ test("Can get Genesis Streams from DID", async () => {
     });
   });
 
-  const streams = await tulons.getGenesisStreams("k2t6wyfsu4pg2uolfm8khi17vi56lp9d7679hy2cbbjyqp6ox9ovev8ciwnnxs");
+  const genesis = await tulons.getGenesis("0x0");
   
-  // "did:3:kjzl6..." encoded and hashed (integration test)
-  expect(streams).toStrictEqual({
+  // expect to get back a did:pkh
+  expect(genesis.did).toBe("did:pkh:eip155:1:0x0");
+  // makes req for k2t6wyfsu4pg2uolfm8khi17vi56lp9d7679hy2cbbjyqp6ox9ovev8ciwnnxs and gets back content...
+  expect(genesis.streams).toStrictEqual({
     "kz2832...": "ceramic://kz29j...",
     "k3qp34...": "ceramic://kz30x..."
   });
