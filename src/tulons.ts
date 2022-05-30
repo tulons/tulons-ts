@@ -6,7 +6,9 @@ import * as hasher from "hash.js";
 import { base36 } from "multiformats/bases/base36";
 
 // ---- Basic types used by Tulons
-export type CeramicStateContent = { state: { content: string, next?: {content: string} }};
+export type CeramicStateContent = {
+  state: { content: string; next?: { content: string } };
+};
 export type CeramicGenesisStreams = Record<string, string | false>;
 export type CeramicStreamResponse = {
   content: unknown;
