@@ -30,7 +30,7 @@ export class Tulons {
     ids?: CeramicStreamIds
   ): Promise<CeramicGenesis> {
     // start empty streams obj
-    const streams = {};
+    const streams: Record<string, string | false> = {};
 
     // get the did
     const did = getDID(address, this._network);
@@ -42,35 +42,37 @@ export class Tulons {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        "type": 0,
-        "genesis": {
-          "header": {
-            "family": "IDX",
-            "controllers": [did]
-          }
+        type: 0,
+        genesis: {
+          header: {
+            family: "IDX",
+            controllers: [did],
+          },
         },
-        "opts": {
-          "pin": true,
-          "sync": true,
-          "anchor": false
-        }
+        opts: {
+          pin: true,
+          sync: true,
+          anchor: false,
+        },
       }),
     });
 
     // collect the response body from the multiquery
-    const res = ((await response.json()) || {}) as { state: CeramicStreamResponse };
+    const res = ((await response.json()) || {}) as {
+      state: CeramicStreamResponse;
+    };
 
     // get the stream content for the given did according to its genesis streamId
     const content = res.state.next ? res.state.next.content : res.state.content;
-    
+
     // return a subset or all keys available in the content
     const iterateOn = ids && ids.length ? ids : Object.keys(content);
 
     // return streamId if stream is available for the given idC
-    iterateOn.forEach((linkedStreamId): void => {
+    iterateOn.forEach((linkedStreamId: string): void => {
       // eg test that CryptoAccounts streamID is in expected location (kjzl6cwe1jw149z4rvwzi56mjjukafta30kojzktd9dsrgqdgz4wlnceu59f95f)
       streams[linkedStreamId] = content[linkedStreamId]
-        ? content[linkedStreamId]
+        ? (content[linkedStreamId] as string)
         : false;
     });
 
