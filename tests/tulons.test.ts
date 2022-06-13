@@ -8,15 +8,15 @@ mockFetch.enableMocks();
 test("Can get Genesis from wallet address", async () => {
 
   const tulons = new Tulons('localhost', 1);
-  
+
   // set mock for the streams expected request
-  fetchMock.mockIf(/^localhost\/api\/v0\/multiqueries$/, (req: Request): Promise<MockResponseInit | string> => {
+  fetchMock.mockIf(/^localhost\/api\/v0\/streams$/, (req: Request): Promise<MockResponseInit | string> => {
 
     return Promise.resolve({
       "body": JSON.stringify({
-        // genesis idx of 0x0's did-pkh == k2t6wyfsu4pg2uolfm8khi17vi56lp9d7679hy2cbbjyqp6ox9ovev8ciwnnxs
-        "k2t6wyfsu4pg2uolfm8khi17vi56lp9d7679hy2cbbjyqp6ox9ovev8ciwnnxs": {
-          "content":{
+        "streamid": "k2t6wy...",
+        "state": {
+          "content": {
             "kz2832...": "ceramic://kz29j...",
             "k3qp34...": "ceramic://kz30x..."
           }
@@ -29,7 +29,7 @@ test("Can get Genesis from wallet address", async () => {
   
   // expect to get back a did:pkh
   expect(genesis.did).toBe("did:pkh:eip155:1:0x0");
-  // makes req for k2t6wyfsu4pg2uolfm8khi17vi56lp9d7679hy2cbbjyqp6ox9ovev8ciwnnxs and gets back content...
+  // makes req for k2t6wy... and gets back content...
   expect(genesis.streams).toStrictEqual({
     "kz2832...": "ceramic://kz29j...",
     "k3qp34...": "ceramic://kz30x..."
@@ -88,7 +88,7 @@ test("Can get Streams from an array of streamIds", async () => {
 
 test("Can get hydrated content from streams content", async () => {
   const tulons = new Tulons('localhost', 1);
-  
+
   // set mock for the streams expected request
   fetchMock.mockIf(/^localhost\/api\/v0\/multiqueries$/, (req: Request): Promise<MockResponseInit | string> => {
 

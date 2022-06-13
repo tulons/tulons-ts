@@ -1,10 +1,3 @@
-// ---- libs for processing the deterministic stream location
-import * as encoder from "@ipld/dag-cbor";
-import * as hasher from "hash.js";
-
-// ---- Base36 is the expected encoding for a ceramic streamID
-import { base36 } from "multiformats/bases/base36";
-
 // ---- Basic types used by Tulons
 export type CeramicGenesis = {
   did: string;
@@ -42,15 +35,34 @@ export class Tulons {
     // get the did
     const did = getDID(address, this._network);
 
-    // get the genesis IDX streams
-    const genesis = getGenesisHash(did);
+    // query and pin for the streamId
+    const response = await fetch(`${this._ceramicUrl}/api/v0/streams`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        "type": 0,
+        "genesis": {
+          "header": {
+            "family": "IDX",
+            "controllers": [did]
+          }
+        },
+        "opts": {
+          "pin": true,
+          "sync": true,
+          "anchor": false
+        }
+      }),
+    });
+
+    // collect the response body from the multiquery
+    const res = ((await response.json()) || {}) as { state: CeramicStreamResponse };
 
     // get the stream content for the given did according to its genesis streamId
-    const content = (await this.getStream(`ceramic://${genesis}`)) as Record<
-      string,
-      string
-    >;
-
+    const content = res.state.next ? res.state.next.content : res.state.content;
+    
     // return a subset or all keys available in the content
     const iterateOn = ids && ids.length ? ids : Object.keys(content);
 
@@ -133,20 +145,6 @@ export class Tulons {
 
 function getDID(address: string, network: string): string {
   return `did:pkh:eip155:${network}:${address.toLowerCase()}`;
-}
-
-function getGenesisHash(did: string): string {
-  // encode the input genesis with cbor (Concise Binary Object Representation)
-  const inputBytes = encoder.encode({
-    header: { controllers: [did], family: "IDX" },
-  });
-
-  // hash the input_bytes and pad with STREAMID_CODEC and TYPE (as bytes)
-  const pad = Uint8Array.from([206, 1, 0, 1, 113, 18, 32]);
-  const digest = Uint8Array.from(hasher.sha256().update(inputBytes).digest());
-
-  // encode the bytes array with base36 to get the deterministic streamId from the DIDs genesis
-  return base36.encode(new Uint8Array([...pad, ...digest]));
 }
 
 function findStreams(

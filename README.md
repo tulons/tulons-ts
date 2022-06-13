@@ -68,7 +68,7 @@ const CERAMIC_GITCOIN_PASSPORT_STREAM_ID = "kjzl6cwe1jw148h1e14jb5fkf55xmqhmyorp
 const tulons = new Tulons(CERAMIC_URL, CERAMIC_NETWORK_ID);
 
 // Ceramic data is stored as address -> DID -> Genesis/IDX Stream -> Data Stream
-const streams = await tulons.getGenesis(address);
+const { streams } = await tulons.getGenesis(address);
 
 // Passport will be defined if the user has recorded it...
 if (streams[CERAMIC_GITCOIN_PASSPORT_STREAM_ID]) {

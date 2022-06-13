@@ -8,9 +8,6 @@
     "dist"
   ],
   "dependencies": {
-    "@ipld/dag-cbor": "^7.0.1",
-    "hash.js": "^1.1.7",
-    "multiformats": "^9.5.8"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.17.12",
