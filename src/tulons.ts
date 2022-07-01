@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 // ---- Basic types used by Tulons
 export type CeramicGenesis = {
   did: string;
@@ -97,7 +97,10 @@ export class Tulons {
     });
 
     // get the stream content for all streams contained within the query
-    const response = await axios.post(`${this._ceramicUrl}/api/v0/multiqueries`, { queries: queries });
+    const response = await axios.post(
+      `${this._ceramicUrl}/api/v0/multiqueries`,
+      { queries: queries }
+    );
 
     // collect the response body from the multiquery
     const streams = (response.data || {}) as CeramicStreams;
