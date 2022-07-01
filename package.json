@@ -39,7 +39,6 @@
     "prettier": "prettier --write ./src",
     "lint": "tsc --noEmit && eslint --ext .ts ./src",
     "build": "tsc && node_modules/.bin/webpack --config webpack.config.js --mode=production",
-    "test": "jest",
-    "prepare": "npm run build"
+    "test": "jest"
   }
 }
