@@ -8,6 +8,7 @@
     "dist"
   ],
   "dependencies": {
+    "axios": "^0.27.2"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.17.12",
@@ -15,6 +16,7 @@
     "@types/node": "^16.7.13",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
+    "axios-mock-adapter": "^1.21.1",
     "babel-jest": "^28.1.0",
     "eslint": "^8.15.0",
     "eslint-config-prettier": "^8.5.0",
@@ -22,7 +24,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^8.0.1",
     "jest": "~28.1.0",
-    "jest-fetch-mock": "^3.0.3",
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.2",

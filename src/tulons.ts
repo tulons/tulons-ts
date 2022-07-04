@@ -1,3 +1,4 @@
+import axios from "axios";
 // ---- Basic types used by Tulons
 export type CeramicGenesis = {
   did: string;
@@ -36,29 +37,23 @@ export class Tulons {
     const did = getDID(address, this._network);
 
     // query and pin for the streamId
-    const response = await fetch(`${this._ceramicUrl}/api/v0/streams`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await axios.post(`${this._ceramicUrl}/api/v0/streams`, {
+      type: 0,
+      genesis: {
+        header: {
+          family: "IDX",
+          controllers: [did],
+        },
       },
-      body: JSON.stringify({
-        type: 0,
-        genesis: {
-          header: {
-            family: "IDX",
-            controllers: [did],
-          },
-        },
-        opts: {
-          pin: true,
-          sync: true,
-          anchor: false,
-        },
-      }),
+      opts: {
+        pin: true,
+        sync: true,
+        anchor: false,
+      },
     });
 
     // collect the response body from the multiquery
-    const res = ((await response.json()) || {}) as {
+    const res = (response.data || {}) as {
       state: CeramicStreamResponse;
     };
 
@@ -102,17 +97,13 @@ export class Tulons {
     });
 
     // get the stream content for all streams contained within the query
-    const response = await fetch(`${this._ceramicUrl}/api/v0/multiqueries`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ queries: queries }),
-    });
+    const response = await axios.post(
+      `${this._ceramicUrl}/api/v0/multiqueries`,
+      { queries: queries }
+    );
 
     // collect the response body from the multiquery
-    const streams = ((await response.json()) || {}) as CeramicStreams;
-
+    const streams = (response.data || {}) as CeramicStreams;
     // extract content from the stream responses
     Object.keys(streams).map((stream) => {
       const res = streams[stream] as CeramicStreamResponse;
