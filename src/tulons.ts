@@ -63,7 +63,7 @@ export class Tulons {
     // return a subset or all keys available in the content
     const iterateOn = ids && ids.length ? ids : Object.keys(content);
 
-    // return streamId if stream is available for the given idC
+    // return streamId if stream is available for the given id
     iterateOn.forEach((linkedStreamId: string): void => {
       // eg test that CryptoAccounts streamID is in expected location (kjzl6cwe1jw149z4rvwzi56mjjukafta30kojzktd9dsrgqdgz4wlnceu59f95f)
       streams[linkedStreamId] = content[linkedStreamId]
