@@ -47,7 +47,6 @@ export class Tulons {
       },
       opts: {
         pin: true,
-        sync: true,
         anchor: false,
       },
     });
